@@ -1,0 +1,1564 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>رعد رايد — توصيل الأشخاص</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #0A2540;
+    --primary-light: #1A3A5C;
+    --accent: #F5A623;
+    --accent-dark: #D4891A;
+    --green: #00C48C;
+    --green-dark: #00A876;
+    --red: #FF4757;
+    --surface: #F7F9FC;
+    --card: #FFFFFF;
+    --border: #E8EDF5;
+    --text: #0A2540;
+    --text-muted: #7A8DA8;
+    --text-light: #B0BEC5;
+    --shadow: 0 4px 24px rgba(10,37,64,0.10);
+    --shadow-lg: 0 8px 40px rgba(10,37,64,0.16);
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Cairo', sans-serif;
+    background: var(--surface);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── LANDING ── */
+  #landing {
+    min-height: 100vh;
+    background: var(--primary);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 40px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #landing::before {
+    content: '';
+    position: absolute;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(245,166,35,0.12) 0%, transparent 70%);
+    top: -150px; left: -150px;
+    pointer-events: none;
+  }
+
+  #landing::after {
+    content: '';
+    position: absolute;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,196,140,0.10) 0%, transparent 70%);
+    bottom: -100px; right: -100px;
+    pointer-events: none;
+  }
+
+  .logo-wrap {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 16px; position: relative; z-index: 2;
+  }
+
+  .logo-icon {
+    width: 64px; height: 64px;
+    background: var(--accent);
+    border-radius: 18px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 30px;
+    box-shadow: 0 8px 24px rgba(245,166,35,0.40);
+  }
+
+  .logo-text {
+    font-size: 36px; font-weight: 900;
+    color: #fff; letter-spacing: -1px;
+  }
+
+  .logo-text span { color: var(--accent); }
+
+  .tagline {
+    color: rgba(255,255,255,0.65);
+    font-size: 15px; margin-bottom: 56px;
+    text-align: center; position: relative; z-index: 2;
+    letter-spacing: 0.3px;
+  }
+
+  .role-cards {
+    display: flex; gap: 20px; flex-wrap: wrap;
+    justify-content: center; position: relative; z-index: 2;
+  }
+
+  .role-card {
+    width: 200px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: var(--radius);
+    padding: 32px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    backdrop-filter: blur(8px);
+  }
+
+  .role-card:hover {
+    background: rgba(255,255,255,0.12);
+    border-color: rgba(255,255,255,0.25);
+    transform: translateY(-8px) scale(1.03);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+  }
+
+  .role-card.passenger:hover { border-color: var(--accent); }
+  .role-card.driver:hover { border-color: var(--green); }
+
+  .role-icon {
+    font-size: 44px; display: block; margin-bottom: 12px;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .role-card.driver .role-icon { animation-delay: 0.5s; }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+  .role-title {
+    font-size: 18px; font-weight: 700; color: #fff;
+    margin-bottom: 6px;
+  }
+
+  .role-desc { font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.6; }
+
+  /* ── PAGES ── */
+  .page { display: none; min-height: 100vh; }
+  .page.active { display: flex; flex-direction: column; }
+
+  /* ── TOPBAR ── */
+  .topbar {
+    background: var(--primary);
+    padding: 16px 24px;
+    display: flex; align-items: center; gap: 14px;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 16px rgba(10,37,64,0.20);
+  }
+
+  .topbar-logo { font-size: 20px; font-weight: 900; color: #fff; }
+  .topbar-logo span { color: var(--accent); }
+
+  .topbar-badge {
+    margin-right: auto;
+    padding: 5px 14px; border-radius: 20px;
+    font-size: 12px; font-weight: 600;
+  }
+
+  .badge-passenger { background: rgba(245,166,35,0.18); color: var(--accent); }
+  .badge-driver { background: rgba(0,196,140,0.18); color: var(--green); }
+
+  .back-btn {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: #fff; padding: 7px 16px;
+    border-radius: var(--radius-sm); cursor: pointer;
+    font-family: 'Cairo', sans-serif;
+    font-size: 13px; font-weight: 600;
+    transition: all 0.2s;
+  }
+
+  .back-btn:hover { background: rgba(255,255,255,0.15); }
+
+  /* ── MAIN CONTENT ── */
+  .main { flex: 1; padding: 24px 20px; max-width: 680px; margin: 0 auto; width: 100%; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+
+  .card-title {
+    font-size: 15px; font-weight: 700;
+    color: var(--primary); margin-bottom: 18px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .card-title-icon {
+    width: 32px; height: 32px;
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+
+  .ci-blue { background: #EBF4FF; }
+  .ci-amber { background: #FFF8EC; }
+  .ci-green { background: #E6FAF5; }
+  .ci-red { background: #FFF0F0; }
+
+  /* ── FORM ── */
+  label {
+    display: block; font-size: 12px; font-weight: 600;
+    color: var(--text-muted); margin-bottom: 6px;
+    letter-spacing: 0.5px;
+  }
+
+  input[type=text], input[type=number], select, textarea {
+    width: 100%; padding: 13px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: 'Cairo', sans-serif;
+    font-size: 14px; color: var(--text);
+    background: var(--surface);
+    transition: all 0.2s;
+    outline: none;
+  }
+
+  input[type=text]:focus, input[type=number]:focus,
+  select:focus, textarea:focus {
+    border-color: var(--primary);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(10,37,64,0.07);
+  }
+
+  .form-row { margin-bottom: 14px; }
+
+  .form-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  /* ── PRICE INPUT ── */
+  .price-input-wrap { position: relative; }
+
+  .price-input-wrap input {
+    padding-left: 56px;
+    font-size: 22px; font-weight: 700;
+    text-align: center;
+    border-width: 2px;
+  }
+
+  .price-currency {
+    position: absolute;
+    right: 16px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 13px; font-weight: 600;
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+
+  /* SLIDER */
+  .slider-wrap { padding: 8px 0; }
+
+  input[type=range] {
+    width: 100%; height: 6px;
+    border-radius: 3px;
+    background: var(--border);
+    outline: none; border: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+  }
+
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--primary);
+    box-shadow: 0 2px 8px rgba(10,37,64,0.30);
+    cursor: grab;
+  }
+
+  .slider-labels {
+    display: flex; justify-content: space-between;
+    font-size: 11px; color: var(--text-light); margin-top: 6px;
+  }
+
+  /* ── PRICE DISPLAY ── */
+  .price-display {
+    text-align: center; padding: 20px;
+    background: var(--primary);
+    border-radius: var(--radius);
+    margin-bottom: 16px;
+  }
+
+  .price-display .amount {
+    font-size: 48px; font-weight: 900;
+    color: var(--accent); line-height: 1;
+  }
+
+  .price-display .unit { color: rgba(255,255,255,0.6); font-size: 14px; margin-top: 4px; }
+
+  /* ── BUTTONS ── */
+  .btn {
+    width: 100%; padding: 15px;
+    border: none; border-radius: var(--radius-sm);
+    font-family: 'Cairo', sans-serif;
+    font-size: 15px; font-weight: 700;
+    cursor: pointer; transition: all 0.25s;
+    letter-spacing: 0.3px;
+  }
+
+  .btn-primary {
+    background: var(--primary); color: #fff;
+    box-shadow: 0 4px 16px rgba(10,37,64,0.25);
+  }
+
+  .btn-primary:hover {
+    background: var(--primary-light);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(10,37,64,0.30);
+  }
+
+  .btn-accent {
+    background: var(--accent); color: var(--primary);
+    box-shadow: 0 4px 16px rgba(245,166,35,0.30);
+  }
+
+  .btn-accent:hover {
+    background: var(--accent-dark);
+    transform: translateY(-2px);
+  }
+
+  .btn-green {
+    background: var(--green); color: #fff;
+    box-shadow: 0 4px 16px rgba(0,196,140,0.30);
+  }
+
+  .btn-green:hover { background: var(--green-dark); transform: translateY(-2px); }
+
+  .btn-outline {
+    background: transparent;
+    border: 1.5px solid var(--border);
+    color: var(--text-muted);
+  }
+
+  .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+
+  .btn:active { transform: scale(0.98); }
+
+  /* ── TRIP INFO ROW ── */
+  .trip-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px;
+    background: var(--surface);
+    border-radius: var(--radius-sm);
+    margin-bottom: 8px;
+  }
+
+  .trip-dot {
+    width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  }
+
+  .trip-dot.from { background: var(--primary); }
+  .trip-dot.to { background: var(--accent); }
+
+  .trip-row-label { font-size: 11px; color: var(--text-muted); flex-shrink: 0; width: 48px; }
+  .trip-row-val { font-size: 13px; font-weight: 600; color: var(--text); }
+
+  /* ── RIDER LIST ── */
+  .rider-card {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    display: flex; align-items: center; gap: 14px;
+    transition: all 0.2s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .rider-card::before {
+    content: '';
+    position: absolute; right: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: var(--border);
+    transition: background 0.2s;
+  }
+
+  .rider-card:hover { border-color: var(--primary); box-shadow: var(--shadow); }
+  .rider-card:hover::before { background: var(--primary); }
+
+  .rider-card.selected {
+    border-color: var(--green);
+    box-shadow: 0 0 0 3px rgba(0,196,140,0.12);
+  }
+
+  .rider-card.selected::before { background: var(--green); }
+
+  .rider-avatar {
+    width: 46px; height: 46px; border-radius: 50%;
+    background: var(--primary);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+    color: #fff;
+  }
+
+  .rider-info { flex: 1; }
+  .rider-name { font-size: 14px; font-weight: 700; color: var(--text); }
+  .rider-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+  .rider-price {
+    text-align: left;
+  }
+
+  .rider-price .amount { font-size: 20px; font-weight: 900; color: var(--primary); }
+  .rider-price .currency { font-size: 11px; color: var(--text-muted); }
+
+  /* COUNTER */
+  .counter {
+    display: inline-flex; align-items: center; gap: 0;
+    border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+
+  .counter-btn {
+    width: 36px; height: 36px; background: var(--surface);
+    border: none; font-size: 18px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text); transition: background 0.2s;
+  }
+
+  .counter-btn:hover { background: var(--border); }
+  .counter-val { padding: 0 14px; font-weight: 700; font-size: 15px; min-width: 48px; text-align: center; }
+
+  /* STATUS STEPS */
+  .steps {
+    display: flex; justify-content: space-between;
+    position: relative; margin: 24px 0;
+  }
+
+  .steps::before {
+    content: '';
+    position: absolute;
+    top: 16px; right: 32px; left: 32px;
+    height: 2px; background: var(--border);
+    z-index: 0;
+  }
+
+  .step-item {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 8px; position: relative; z-index: 1; flex: 1;
+  }
+
+  .step-circle {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--border); color: var(--text-muted);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700;
+    transition: all 0.3s;
+  }
+
+  .step-circle.done { background: var(--green); color: #fff; }
+  .step-circle.active { background: var(--primary); color: #fff; box-shadow: 0 0 0 4px rgba(10,37,64,0.15); }
+  .step-label { font-size: 10px; color: var(--text-muted); text-align: center; font-weight: 600; }
+
+  /* NEGOTIATION BUBBLE */
+  .nego-bubble {
+    padding: 14px 18px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    max-width: 80%;
+    animation: slideIn 0.3s ease-out;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .nego-bubble.right {
+    background: var(--primary); color: #fff;
+    margin-right: 0; margin-left: auto;
+    border-bottom-left-radius: 4px;
+  }
+
+  .nego-bubble.left {
+    background: var(--surface); color: var(--text);
+    border: 1px solid var(--border);
+    border-bottom-right-radius: 4px;
+  }
+
+  .nego-bubble .bub-price { font-size: 20px; font-weight: 900; }
+  .nego-bubble.right .bub-price { color: var(--accent); }
+  .nego-bubble.left .bub-price { color: var(--green); }
+  .nego-bubble .bub-who { font-size: 11px; opacity: 0.65; margin-top: 2px; }
+
+  .nego-input-row {
+    display: flex; gap: 8px; align-items: center;
+    margin-top: 12px;
+  }
+
+  .nego-input-row input { flex: 1; font-size: 16px; font-weight: 700; text-align: center; }
+
+  /* MATCH BANNER */
+  .match-banner {
+    background: linear-gradient(135deg, var(--green), #00A876);
+    color: #fff; border-radius: var(--radius);
+    padding: 24px; text-align: center; margin-bottom: 16px;
+    box-shadow: 0 8px 32px rgba(0,196,140,0.35);
+    animation: pop 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  }
+
+  @keyframes pop {
+    from { transform: scale(0.85); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .match-banner .match-icon { font-size: 40px; margin-bottom: 8px; }
+  .match-banner .match-title { font-size: 20px; font-weight: 900; }
+  .match-banner .match-sub { font-size: 13px; opacity: 0.85; margin-top: 4px; }
+
+  /* TAG */
+  .tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 4px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 600;
+  }
+
+  .tag-amber { background: #FFF8EC; color: #D4891A; }
+  .tag-green { background: #E6FAF5; color: var(--green-dark); }
+  .tag-blue { background: #EBF4FF; color: var(--primary); }
+  .tag-red { background: #FFF0F0; color: var(--red); }
+
+  /* DIVIDER */
+  .divider {
+    height: 1px; background: var(--border);
+    margin: 16px 0;
+  }
+
+  /* SUMMARY ROW */
+  .sum-row {
+    display: flex; justify-content: space-between;
+    align-items: center; padding: 8px 0;
+    font-size: 13px; color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sum-row:last-child { border: none; }
+  .sum-row.total { font-size: 16px; font-weight: 700; color: var(--text); }
+  .sum-row.total span:last-child { color: var(--primary); }
+
+  /* RATING */
+  .star { font-size: 20px; cursor: pointer; transition: transform 0.2s; }
+  .star:hover { transform: scale(1.25); }
+  .stars-row { display: flex; gap: 4px; margin: 12px 0; }
+
+  /* NOTIFICATION */
+  .notif {
+    position: fixed; top: 20px; left: 50%;
+    transform: translateX(-50%) translateY(-80px);
+    background: var(--primary); color: #fff;
+    padding: 12px 24px; border-radius: 30px;
+    font-size: 13px; font-weight: 600;
+    z-index: 9999; transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    white-space: nowrap; box-shadow: var(--shadow-lg);
+  }
+
+  .notif.show { transform: translateX(-50%) translateY(0); }
+
+  /* VEHICLE TYPE */
+  .vehicle-opts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+
+  .vehicle-opt {
+    flex: 1; min-width: 80px;
+    padding: 12px 8px; border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border);
+    text-align: center; cursor: pointer;
+    transition: all 0.2s;
+    background: var(--surface);
+  }
+
+  .vehicle-opt:hover { border-color: var(--primary); background: #fff; }
+  .vehicle-opt.selected { border-color: var(--primary); background: var(--primary); }
+  .vehicle-opt .v-icon { font-size: 24px; display: block; margin-bottom: 4px; }
+  .vehicle-opt .v-name { font-size: 11px; font-weight: 600; color: var(--text-muted); }
+  .vehicle-opt.selected .v-name { color: #fff; }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center; padding: 48px 24px;
+    color: var(--text-muted);
+  }
+
+  .empty-state .e-icon { font-size: 48px; display: block; margin-bottom: 12px; opacity: 0.4; }
+  .empty-state p { font-size: 14px; line-height: 1.7; }
+
+  /* COUNTDOWN */
+  .countdown {
+    font-size: 28px; font-weight: 900;
+    color: var(--accent); text-align: center;
+    margin: 8px 0;
+  }
+
+  /* MAP PLACEHOLDER */
+  .map-placeholder {
+    height: 160px;
+    background: #E8EDF5;
+    border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 8px;
+    color: var(--text-muted);
+    font-size: 13px;
+    margin-bottom: 14px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .map-placeholder::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(
+      0deg, transparent, transparent 30px,
+      rgba(10,37,64,0.04) 30px, rgba(10,37,64,0.04) 31px
+    ),
+    repeating-linear-gradient(
+      90deg, transparent, transparent 40px,
+      rgba(10,37,64,0.04) 40px, rgba(10,37,64,0.04) 41px
+    );
+  }
+
+  .map-pin-anim {
+    font-size: 32px; position: relative; z-index: 1;
+    animation: bounce 1s ease-in-out infinite;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 480px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .role-cards { flex-direction: column; align-items: center; }
+    .role-card { width: 100%; max-width: 280px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="notification" class="notif">✓ تم بنجاح!</div>
+
+<!-- ============ LANDING ============ -->
+<div id="landing">
+  <div class="logo-wrap">
+    <div class="logo-icon">⚡</div>
+    <div class="logo-text">رعد <span>رايد</span></div>
+  </div>
+  <p class="tagline">توصيل ذكي — كل طرف يحدد سعره، الأفضل يفوز</p>
+
+  <div class="role-cards">
+    <div class="role-card passenger" onclick="startAs('passenger')">
+      <span class="role-icon">🧑‍💼</span>
+      <p class="role-title">أنا راكب</p>
+      <p class="role-desc">حدد وجهتك واعرض سعرك، السائق الأنسب يستجيب</p>
+    </div>
+    <div class="role-card driver" onclick="startAs('driver')">
+      <span class="role-icon">🏍️</span>
+      <p class="role-title">أنا سائق</p>
+      <p class="role-desc">شوف طلبات الرحلات وقدّم عرض سعرك أنت</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PASSENGER PAGE ============ -->
+<div id="passenger-page" class="page">
+
+  <!-- ── STEP 1: REQUEST RIDE ── -->
+  <div id="p-step1">
+    <div class="topbar">
+      <div class="topbar-logo">رعد <span>رايد</span></div>
+      <div class="topbar-badge badge-passenger">راكب</div>
+      <button class="back-btn" onclick="goLanding()">← رجوع</button>
+    </div>
+
+    <div class="main">
+      <div class="steps">
+        <div class="step-item">
+          <div class="step-circle active">1</div>
+          <div class="step-label">طلب رحلة</div>
+        </div>
+        <div class="step-item">
+          <div class="step-circle">2</div>
+          <div class="step-label">التفاوض</div>
+        </div>
+        <div class="step-item">
+          <div class="step-circle">3</div>
+          <div class="step-label">مزود</div>
+        </div>
+        <div class="step-item">
+          <div class="step-circle">4</div>
+          <div class="step-label">تم</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-icon ci-blue">📍</div>
+          تفاصيل الرحلة
+        </div>
+
+        <div class="form-row">
+          <label>من (نقطة الانطلاق)</label>
+          <input type="text" id="p-from" placeholder="مثال: ميدان المنفلوط" value="">
+        </div>
+
+        <div class="form-row">
+          <label>إلى (الوجهة)</label>
+          <input type="text" id="p-to" placeholder="مثال: محطة القطار" value="">
+        </div>
+
+        <div class="form-row">
+          <label>نوع المركبة</label>
+          <div class="vehicle-opts">
+            <div class="vehicle-opt selected" onclick="selectVehicle(this,'tuk')">
+              <span class="v-icon">🛺</span>
+              <span class="v-name">توك توك</span>
+            </div>
+            <div class="vehicle-opt" onclick="selectVehicle(this,'moto')">
+              <span class="v-icon">🏍️</span>
+              <span class="v-name">موتوسيكل</span>
+            </div>
+            <div class="vehicle-opt" onclick="selectVehicle(this,'car')">
+              <span class="v-icon">🚗</span>
+              <span class="v-name">عربية</span>
+            </div>
+            <div class="vehicle-opt" onclick="selectVehicle(this,'micro')">
+              <span class="v-icon">🚐</span>
+              <span class="v-name">ميكروباص</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-row">
+            <label>عدد الركاب</label>
+            <div class="counter">
+              <button class="counter-btn" onclick="changePassengers(-1)">−</button>
+              <span class="counter-val" id="p-passengers">1</span>
+              <button class="counter-btn" onclick="changePassengers(1)">+</button>
+            </div>
+          </div>
+          <div class="form-row">
+            <label>وقت المغادرة</label>
+            <select id="p-time">
+              <option>دلوقتي</option>
+              <option>خلال 15 دقيقة</option>
+              <option>خلال 30 دقيقة</option>
+              <option>وقت محدد</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-icon ci-amber">💰</div>
+          سعرك المقترح
+        </div>
+
+        <div class="price-display">
+          <div class="amount" id="p-price-display">25</div>
+          <div class="unit">جنيه مصري</div>
+        </div>
+
+        <div class="slider-wrap">
+          <input type="range" id="p-price-slider" min="5" max="200" value="25"
+            oninput="updatePriceSlider(this.value,'p-price-display','p-price-num')">
+          <div class="slider-labels"><span>5 ج</span><span>200 ج</span></div>
+        </div>
+
+        <div class="form-row" style="margin-top:12px;">
+          <label>أو أدخل مبلغ محدد</label>
+          <div class="price-input-wrap">
+            <input type="number" id="p-price-num" value="25" min="5" max="500"
+              oninput="updatePriceNum(this.value,'p-price-slider','p-price-display')">
+            <span class="price-currency">جنيه</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label>ملاحظات للسائق (اختياري)</label>
+          <input type="text" id="p-notes" placeholder="مثال: عندي حاجات كتير / محتاج مساعدة...">
+        </div>
+      </div>
+
+      <button class="btn btn-accent" onclick="postRideRequest()">⚡ نشر طلب الرحلة</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 2: WAITING + NEGOTIATION ── -->
+  <div id="p-step2" style="display:none;">
+    <div class="topbar">
+      <div class="topbar-logo">رعد <span>رايد</span></div>
+      <div class="topbar-badge badge-passenger">راكب</div>
+      <button class="back-btn" onclick="pGoStep(1)">← تعديل</button>
+    </div>
+
+    <div class="main">
+      <div class="steps">
+        <div class="step-item"><div class="step-circle done">✓</div><div class="step-label">طلب رحلة</div></div>
+        <div class="step-item"><div class="step-circle active">2</div><div class="step-label">التفاوض</div></div>
+        <div class="step-item"><div class="step-circle">3</div><div class="step-label">مؤكد</div></div>
+        <div class="step-item"><div class="step-circle">4</div><div class="step-label">تم</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-icon ci-blue">📋</div>
+          ملخص طلبك
+        </div>
+        <div class="trip-row">
+          <div class="trip-dot from"></div>
+          <div class="trip-row-label">من</div>
+          <div class="trip-row-val" id="p-sum-from">—</div>
+        </div>
+        <div class="trip-row">
+          <div class="trip-dot to"></div>
+          <div class="trip-row-label">إلى</div>
+          <div class="trip-row-val" id="p-sum-to">—</div>
+        </div>
+        <div style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;">
+          <span class="tag tag-blue" id="p-sum-vehicle">🛺 توك توك</span>
+          <span class="tag tag-amber" id="p-sum-passengers">👤 1 راكب</span>
+          <span class="tag tag-green" id="p-sum-time">⏰ دلوقتي</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-icon ci-amber">🤝</div>
+          التفاوض على السعر
+        </div>
+
+        <div id="nego-chat" style="max-height:220px; overflow-y:auto; margin-bottom:12px;">
+          <div class="nego-bubble right">
+            <div class="bub-price" id="p-initial-offer">25 ج</div>
+            <div class="bub-who">عرضك الأول</div>
+          </div>
+        </div>
+
+        <p style="font-size:12px; color:var(--text-muted); margin-bottom:8px;">هل تريد تعديل عرضك؟</p>
+        <div class="nego-input-row">
+          <input type="number" id="p-counter-input" placeholder="سعر جديد" min="5" max="500">
+          <button class="btn btn-primary" style="width:auto; padding:11px 20px;" onclick="pSendCounter()">إرسال ↗</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-icon ci-green">🏍️</div>
+          عروض السائقين
+          <span class="tag tag-green" style="margin-right:auto;" id="drivers-count">3 سائق</span>
+        </div>
+
+        <div id="driver-offers-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── STEP 3: CONFIRMED ── -->
+  <div id="p-step3" style="display:none;">
+    <div class="topbar">
+      <div class="topbar-logo">رعد <span>رايد</span></div>
+      <div class="topbar-badge badge-passenger">راكب</div>
+    </div>
+    <div class="main">
+      <div class="steps">
+        <div class="step-item"><div class="step-circle done">✓</div><div class="step-label">طلب</div></div>
+        <div class="step-item"><div class="step-circle done">✓</div><div class="step-label">تفاوض</div></div>
+        <div class="step-item"><div class="step-circle active">3</div><div class="step-label">مؤكد</div></div>
+        <div class="step-item"><div class="step-circle">4</div><div class="step-label">تم</div></div>
+      </div>
+
+      <div class="match-banner">
+        <div class="match-icon">🎉</div>
+        <div class="match-title">تم الاتفاق!</div>
+        <div class="match-sub" id="p-match-msg">—</div>
+      </div>
+
+      <div class="map-placeholder">
+        <span class="map-pin-anim">📍</span>
+        <span>السائق في طريقه إليك</span>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-icon ci-green">🏍️</div>
+          بيانات السائق
+        </div>
+        <div style="display:flex; align-items:center; gap:14px; margin-bottom:16px;">
+          <div class="rider-avatar" id="p-driver-avatar">🧑</div>
+          <div>
+            <div style="font-size:16px; font-weight:700;" id="p-driver-name">—</div>
+            <div style="font-size:12px; color:var(--text-muted);" id="p-driver-rating">⭐ 4.8 · 142 رحلة</div>
+          </div>
+          <div style="margin-right:auto;">
+            <div class="tag tag-blue" id="p-driver-vehicle">🏍️ موتو</div>
+          </div>
+        </div>
+        <div class="sum-row"><span>السعر المتفق عليه</span><span style="font-weight:700; color:var(--green);" id="p-agreed-price">—</span></div>
+        <div class="sum-row"><span>وقت الوصول المتوقع</span><span id="p-eta">~8 دقائق</span></div>
+        <div class="sum-row"><span>لوحة المركبة</span><span id="p-plate">ABC 1234</span></div>
+      </div>
+
+      <div style="display:flex; gap:10px;">
+        <button class="btn btn-outline" style="flex:1" onclick="showNotif('📞 جاري الاتصال...')">📞 اتصل</button>
+        <button class="btn btn-outline" style="flex:1" onclick="showNotif('💬 تم فتح المحادثة')">💬 محادثة</button>
+      </div>
+      <button class="btn btn-green" style="margin-top:10px;" onclick="pGoStep(4)">✓ تأكيد الاستلام وإنهاء الرحلة</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 4: DONE + RATE ── -->
+  <div id="p-step4" style="display:none;">
+    <div class="topbar">
+      <div class="topbar-logo">رعد <span>رايد</span></div>
+      <div class="topbar-badge badge-passenger">راكب</div>
+    </div>
+    <div class="main">
+      <div class="steps">
+        <div class="step-item"><div class="step-circle done">✓</div><div class="step-label">طلب</div></div>
+        <div class="step-item"><div class="step-circle done">✓</div><div class="step-label">تفاوض</div></div>
+        <div class="step-item"><div class="step-circle done">✓</div><div class="step-label">مؤكد</div></div>
+        <div class="step-item"><div class="step-circle active">4</div><div class="step-label">تم</div></div>
+      </div>
+
+      <div class="match-banner" style="background:linear-gradient(135deg,var(--primary),var(--primary-light));">
+        <div class="match-icon">✅</div>
+        <div class="match-title">وصلت بالسلامة!</div>
+        <div class="match-sub">شكراً لاستخدامك رعد رايد</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-icon ci-amber">⭐</div>
+          قيّم رحلتك
+        </div>
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:8px;">كيف كانت الرحلة مع <span id="rate-driver-name">السائق</span>؟</p>
+        <div class="stars-row" id="stars-row-p">
+          <span class="star" onclick="rateStar(1,'p')" data-val="1">☆</span>
+          <span class="star" onclick="rateStar(2,'p')" data-val="2">☆</span>
+          <span class="star" onclick="rateStar(3,'p')" data-val="3">☆</span>
+          <span class="star" onclick="rateStar(4,'p')" data-val="4">☆</span>
+          <span class="star" onclick="rateStar(5,'p')" data-val="5">☆</span>
+        </div>
+        <input type="text" placeholder="تعليق (اختياري)" style="margin-top:8px;">
+        <button class="btn btn-accent" style="margin-top:12px;" onclick="submitRating('p')">إرسال التقييم ⭐</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><div class="card-title-icon ci-blue">🧾</div>ملخص الرحلة</div>
+        <div class="sum-row"><span>المسار</span><span id="final-route-p">—</span></div>
+        <div class="sum-row"><span>نوع المركبة</span><span id="final-vehicle-p">—</span></div>
+        <div class="sum-row total"><span>المبلغ المدفوع</span><span id="final-price-p">—</span></div>
+      </div>
+
+      <button class="btn btn-primary" onclick="goLanding()">+ رحلة جديدة</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ DRIVER PAGE ============ -->
+<div id="driver-page" class="page">
+
+  <!-- ── STEP 1: BROWSE REQUESTS ── -->
+  <div id="d-step1">
+    <div class="topbar">
+      <div class="topbar-logo">رعد <span>رايد</span></div>
+      <div class="topbar-badge badge-driver">سائق</div>
+      <button class="back-btn" onclick="goLanding()">← رجوع</button>
+    </div>
+    <div class="main">
+      <div class="steps">
+        <div class="step-item"><div class="step-circle active">1</div><div class="step-label">الطلبات</div></div>
+        <div class="step-item"><div class="step-circle">2</div><div class="step-label">عرض سعر</div></div>
+        <div class="step-item"><div class="step-circle">3</div><div class="step-label">مؤكد</div></div>
+        <div class="step-item"><div class="step-circle">4</div><div class="step-label">تم</div></div>
+      </div>
+
+      <div class="card" style="padding:14px 18px;">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+          <div class="card-title" style="margin:0">🔍 فلترة الطلبات</div>
+        </div>
+        <div class="form-grid">
+          <div>
+            <label>نوع المركبة</label>
+            <select id="d-filter-vehicle">
+              <option value="">الكل</option>
+              <option value="tuk">توك توك</option>
+              <option value="moto">موتوسيكل</option>
+              <option value="car">عربية</option>
+              <option value="micro">ميكروباص</option>
+            </select>
+          </div>
+          <div>
+            <label>أقل سعر مقبول (ج)</label>
+            <input type="number" id="d-filter-price" placeholder="0" min="0">
+          </div>
+        </div>
+        <button class="btn btn-outline" style="margin-top:6px;" onclick="filterRequests()">تطبيق الفلتر</button>
+      </div>
+
+      <div id="requests-list"></div>
+    </div>
+  </div>
+
+  <!-- ── STEP 2: MAKE OFFER ── -->
+  <div id="d-step2" style="display:none;">
+    <div class="topbar">
+      <div class="topbar-logo">رعد <span>رايد</span></div>
+      <div class="topbar-badge badge-driver">سائق</div>
+      <button class="back-btn" onclick="dGoStep(1)">← رجوع</button>
+    </div>
+    <div class="main">
+      <div class="steps">
+        <div class="step-item"><div class="step-circle done">✓</div><div class="step-label">الطلبات</div></div>
+        <div class="step-item"><div class="step-circle active">2</div><div class="step-label">عرض سعر</div></div>
+        <div class="step-item"><div class="step-circle">3</div><div class="step-label">مؤكد</div></div>
+        <div class="step-item"><div class="step-circle">4</div><div class="step-label">تم</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><div class="card-title-icon ci-blue">📋</div>تفاصيل الطلب</div>
+        <div class="trip-row">
+          <div class="trip-dot from"></div>
+          <div class="trip-row-label">من</div>
+          <div class="trip-row-val" id="d-req-from">—</div>
+        </div>
+        <div class="trip-row">
+          <div class="trip-dot to"></div>
+          <div class="trip-row-label">إلى</div>
+          <div class="trip-row-val" id="d-req-to">—</div>
+        </div>
+        <div style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;">
+          <span class="tag tag-blue" id="d-req-vehicle">🛺 —</span>
+          <span class="tag tag-amber" id="d-req-passengers">👤 —</span>
+          <span class="tag tag-green" id="d-req-time">⏰ —</span>
+        </div>
+        <div class="divider"></div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:13px; color:var(--text-muted);">سعر الراكب المقترح</span>
+          <span style="font-size:20px; font-weight:900; color:var(--primary);" id="d-passenger-price">—</span>
+        </div>
+        <div style="font-size:11px; color:var(--text-muted); margin-top:4px;" id="d-req-notes"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><div class="card-title-icon ci-amber">💰</div>عرض سعرك</div>
+
+        <div class="price-display">
+          <div class="amount" id="d-price-display">35</div>
+          <div class="unit">جنيه مصري</div>
+        </div>
+
+        <div class="slider-wrap">
+          <input type="range" id="d-price-slider" min="5" max="300" value="35"
+            oninput="updatePriceSlider(this.value,'d-price-display','d-price-num')">
+          <div class="slider-labels"><span>5 ج</span><span>300 ج</span></div>
+        </div>
+
+        <div class="form-row" style="margin-top:12px;">
+          <label>أو أدخل مبلغ محدد</label>
+          <div class="price-input-wrap">
+            <input type="number" id="d-price-num" value="35" min="5" max="500"
+              oninput="updatePriceNum(this.value,'d-price-slider','d-price-display')">
+            <span class="price-currency">جنيه</span>
+          </div>
+        </div>
+
+        <div id="d-nego-chat" style="max-height:180px; overflow-y:auto; margin:12px 0; display:none;">
+          <p style="font-size:12px; color:var(--text-muted); margin-bottom:8px;">جلسة التفاوض:</p>
+        </div>
+
+        <div id="d-nego-counter-wrap" style="display:none;">
+          <div class="nego-input-row">
+            <input type="number" id="d-counter-input" placeholder="سعر جديد" min="5" max="500">
+            <button class="btn btn-primary" style="width:auto; padding:11px 20px;" onclick="dSendCounter()">إرسال ↗</button>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-green" onclick="dSendOffer()">📤 إرسال العرض للراكب</button>
+      <button class="btn btn-outline" style="margin-top:8px;" onclick="dGoStep(1)">تجاهل هذا الطلب</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 3: CONFIRMED ── -->
+  <div id="d-step3" style="display:none;">
+    <div class="topbar">
+      <div class="topbar-logo">رعد <span>رايد</span></div>
+      <div class="topbar-badge badge-driver">سائق</div>
+    </div>
+    <div class="main">
+      <div class="steps">
+        <div class="step-item"><div class="step-circle done">✓</div><div class="step-label">الطلبات</div></div>
+        <div class="step-item"><div class="step-circle done">✓</div><div class="step-label">عرض سعر</div></div>
+        <div class="step-item"><div class="step-circle active">3</div><div class="step-label">مؤكد</div></div>
+        <div class="step-item"><div class="step-circle">4</div><div class="step-label">تم</div></div>
+      </div>
+
+      <div class="match-banner">
+        <div class="match-icon">🎉</div>
+        <div class="match-title">تم قبول عرضك!</div>
+        <div class="match-sub" id="d-match-msg">—</div>
+      </div>
+
+      <div class="map-placeholder">
+        <span class="map-pin-anim">🏍️</span>
+        <span>توجه لنقطة الانطلاق</span>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><div class="card-title-icon ci-blue">🧑‍💼</div>بيانات الراكب</div>
+        <div style="display:flex; align-items:center; gap:14px; margin-bottom:16px;">
+          <div class="rider-avatar">🧑</div>
+          <div>
+            <div style="font-size:16px; font-weight:700;" id="d-passenger-name">—</div>
+            <div style="font-size:12px; color:var(--text-muted);">⭐ 4.7 · 38 رحلة</div>
+          </div>
+        </div>
+        <div class="trip-row">
+          <div class="trip-dot from"></div>
+          <div class="trip-row-label">من</div>
+          <div class="trip-row-val" id="d-conf-from">—</div>
+        </div>
+        <div class="trip-row">
+          <div class="trip-dot to"></div>
+          <div class="trip-row-label">إلى</div>
+          <div class="trip-row-val" id="d-conf-to">—</div>
+        </div>
+        <div class="divider"></div>
+        <div class="sum-row total"><span>المبلغ المتفق عليه</span><span id="d-agreed-price">—</span></div>
+      </div>
+
+      <div style="display:flex; gap:10px;">
+        <button class="btn btn-outline" style="flex:1" onclick="showNotif('📞 جاري الاتصال...')">📞 اتصل</button>
+        <button class="btn btn-outline" style="flex:1" onclick="showNotif('💬 تم فتح المحادثة')">💬 محادثة</button>
+      </div>
+      <button class="btn btn-green" style="margin-top:10px;" onclick="dGoStep(4)">✓ تأكيد إنهاء الرحلة</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 4: DONE ── -->
+  <div id="d-step4" style="display:none;">
+    <div class="topbar">
+      <div class="topbar-logo">رعد <span>رايد</span></div>
+      <div class="topbar-badge badge-driver">سائق</div>
+    </div>
+    <div class="main">
+      <div class="steps">
+        <div class="step-item"><div class="step-circle done">✓</div><div class="step-label">الطلبات</div></div>
+        <div class="step-item"><div class="step-circle done">✓</div><div class="step-label">عرض</div></div>
+        <div class="step-item"><div class="step-circle done">✓</div><div class="step-label">مؤكد</div></div>
+        <div class="step-item"><div class="step-circle active">4</div><div class="step-label">تم</div></div>
+      </div>
+
+      <div class="match-banner" style="background:linear-gradient(135deg,var(--primary),var(--primary-light));">
+        <div class="match-icon">💰</div>
+        <div class="match-title">تم استلام المبلغ!</div>
+        <div class="match-sub">رحلة موفقة، شكراً لك</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><div class="card-title-icon ci-amber">⭐</div>قيّم الراكب</div>
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:8px;">كيف كان الراكب؟</p>
+        <div class="stars-row" id="stars-row-d">
+          <span class="star" onclick="rateStar(1,'d')" data-val="1">☆</span>
+          <span class="star" onclick="rateStar(2,'d')" data-val="2">☆</span>
+          <span class="star" onclick="rateStar(3,'d')" data-val="3">☆</span>
+          <span class="star" onclick="rateStar(4,'d')" data-val="4">☆</span>
+          <span class="star" onclick="rateStar(5,'d')" data-val="5">☆</span>
+        </div>
+        <button class="btn btn-accent" style="margin-top:12px;" onclick="submitRating('d')">إرسال التقييم ⭐</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><div class="card-title-icon ci-green">💰</div>ملخص الكسب</div>
+        <div class="sum-row"><span>المسار</span><span id="final-route-d">—</span></div>
+        <div class="sum-row"><span>عمولة التطبيق (10%)</span><span id="final-commission">—</span></div>
+        <div class="sum-row total"><span>صافي ربحك</span><span id="final-net">—</span></div>
+      </div>
+
+      <button class="btn btn-primary" onclick="goLanding()">+ رحلة جديدة</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── STATE ──
+const state = {
+  role: null,
+  vehicle: 'tuk',
+  passengers: 1,
+  selectedRequest: null,
+  agreedPrice: 0,
+  driverOffers: [],
+  pRating: 0,
+  dRating: 0
+};
+
+// ── DUMMY REQUESTS ──
+const mockRequests = [
+  { id:1, from:'ميدان المنفلوط', to:'محطة القطار', vehicle:'moto', passengers:1, time:'دلوقتي', price:20, notes:'بسرعة لو سمحت', avatar:'🧑', name:'محمد أحمد', rating:'4.7', trips:55 },
+  { id:2, from:'شارع الجمهورية', to:'مستشفى المنفلوط', vehicle:'tuk', passengers:2, time:'خلال 15 دقيقة', price:15, notes:'', avatar:'👩', name:'فاطمة محمود', rating:'4.9', trips:23 },
+  { id:3, from:'سوق المنفلوط', to:'قرية نزلة أبو سمرة', vehicle:'car', passengers:3, time:'خلال 30 دقيقة', price:50, notes:'معايا شنط', avatar:'🧔', name:'سيد إبراهيم', rating:'4.5', trips:89 },
+  { id:4, from:'كلية الحقوق', to:'ميدان المنفلوط', vehicle:'moto', passengers:1, time:'دلوقتي', price:10, notes:'', avatar:'🧑‍🎓', name:'علي محمد', rating:'4.8', trips:12 },
+  { id:5, from:'مدرسة النور', to:'إدارة التعليم', vehicle:'tuk', passengers:1, time:'خلال 15 دقيقة', price:12, notes:'', avatar:'👩‍🏫', name:'نورا حامد', rating:'4.6', trips:30 },
+];
+
+const vehicleNames = { tuk:'🛺 توك توك', moto:'🏍️ موتوسيكل', car:'🚗 عربية', micro:'🚐 ميكروباص' };
+
+const driverNames = [
+  {n:'حسن علي', r:'⭐ 4.9 · 312 رحلة', plate:'أ ب ت 1234', v:'🏍️', eta:'~5 دق', avatar:'🧔'},
+  {n:'محمود صالح', r:'⭐ 4.7 · 198 رحلة', plate:'ج ح خ 5678', v:'🛺', eta:'~8 دق', avatar:'👨'},
+  {n:'أحمد رمضان', r:'⭐ 4.8 · 244 رحلة', plate:'د ذ ر 9012', v:'🏍️', eta:'~6 دق', avatar:'🧑'},
+];
+
+// ── NAVIGATION ──
+function startAs(role) {
+  state.role = role;
+  document.getElementById('landing').style.display = 'none';
+  const page = document.getElementById(role + '-page');
+  page.classList.add('active');
+  if (role === 'passenger') pGoStep(1);
+  if (role === 'driver') { dGoStep(1); renderRequests(mockRequests); }
+}
+
+function goLanding() {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('landing').style.display = 'flex';
+}
+
+function pGoStep(n) {
+  for (let i = 1; i <= 4; i++) {
+    const el = document.getElementById('p-step' + i);
+    if (el) el.style.display = (i === n) ? 'block' : 'none';
+  }
+}
+
+function dGoStep(n) {
+  for (let i = 1; i <= 4; i++) {
+    const el = document.getElementById('d-step' + i);
+    if (el) el.style.display = (i === n) ? 'block' : 'none';
+  }
+}
+
+// ── PRICE SYNC ──
+function updatePriceSlider(val, displayId, inputId) {
+  document.getElementById(displayId).textContent = val;
+  const inp = document.getElementById(inputId);
+  if (inp) inp.value = val;
+}
+
+function updatePriceNum(val, sliderId, displayId) {
+  const v = Math.max(5, Math.min(500, parseInt(val) || 5));
+  document.getElementById(displayId).textContent = v;
+  const s = document.getElementById(sliderId);
+  if (s) s.value = v;
+}
+
+// ── VEHICLE SELECT ──
+function selectVehicle(el, type) {
+  document.querySelectorAll('.vehicle-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  state.vehicle = type;
+}
+
+// ── PASSENGERS COUNTER ──
+function changePassengers(d) {
+  const el = document.getElementById('p-passengers');
+  let v = parseInt(el.textContent) + d;
+  v = Math.max(1, Math.min(8, v));
+  el.textContent = v;
+  state.passengers = v;
+}
+
+// ── POST RIDE REQUEST (PASSENGER) ──
+function postRideRequest() {
+  const from = document.getElementById('p-from').value.trim();
+  const to = document.getElementById('p-to').value.trim();
+  const price = parseInt(document.getElementById('p-price-num').value) || 25;
+  const time = document.getElementById('p-time').value;
+  const notes = document.getElementById('p-notes').value;
+
+  if (!from || !to) { showNotif('⚠️ أدخل نقطة الانطلاق والوجهة'); return; }
+
+  state.from = from; state.to = to; state.price = price;
+  state.time = time; state.notes = notes;
+
+  document.getElementById('p-sum-from').textContent = from;
+  document.getElementById('p-sum-to').textContent = to;
+  document.getElementById('p-sum-vehicle').textContent = vehicleNames[state.vehicle] || '🛺 توك توك';
+  document.getElementById('p-sum-passengers').textContent = '👤 ' + state.passengers + ' راكب';
+  document.getElementById('p-sum-time').textContent = '⏰ ' + time;
+  document.getElementById('p-initial-offer').textContent = price + ' ج';
+
+  // Build driver offers
+  const offers = driverNames.map((d, i) => ({
+    ...d,
+    price: price + Math.floor(Math.random() * 20) - 5 + (i * 4)
+  }));
+  state.driverOffers = offers;
+
+  renderDriverOffers(offers, price);
+  document.getElementById('p-counter-input').value = price;
+
+  pGoStep(2);
+  showNotif('✅ تم نشر الطلب! السائقون يردون...');
+}
+
+function renderDriverOffers(offers, myPrice) {
+  const list = document.getElementById('driver-offers-list');
+  list.innerHTML = '';
+  document.getElementById('drivers-count').textContent = offers.length + ' سائق';
+
+  offers.forEach((d, i) => {
+    const isCheap = d.price <= myPrice;
+    const div = document.createElement('div');
+    div.className = 'rider-card';
+    div.innerHTML = `
+      <div class="rider-avatar">${d.avatar}</div>
+      <div class="rider-info">
+        <div class="rider-name">${d.n}</div>
+        <div class="rider-meta">${d.r} · ${d.plate}</div>
+        <div class="rider-meta">${d.eta} · ${d.v}</div>
+      </div>
+      <div class="rider-price">
+        <div class="amount">${d.price}</div>
+        <div class="currency">ج</div>
+        <div style="margin-top:4px;">
+          <span class="tag ${isCheap ? 'tag-green' : 'tag-amber'}" style="font-size:10px;">
+            ${isCheap ? '✓ مناسب' : '↑ أعلى'}
+          </span>
+        </div>
+      </div>
+    `;
+    div.onclick = () => pAcceptDriver(i);
+    list.appendChild(div);
+  });
+}
+
+function pSendCounter() {
+  const val = document.getElementById('p-counter-input').value;
+  if (!val) { showNotif('⚠️ أدخل سعر'); return; }
+  const chat = document.getElementById('nego-chat');
+  const bub = document.createElement('div');
+  bub.className = 'nego-bubble right';
+  bub.innerHTML = `<div class="bub-price">${val} ج</div><div class="bub-who">عرضك المعدل</div>`;
+  chat.appendChild(bub);
+  chat.scrollTop = chat.scrollHeight;
+  state.price = parseInt(val);
+
+  // Simulate driver counter
+  setTimeout(() => {
+    const driverCounter = Math.max(5, parseInt(val) + Math.floor(Math.random() * 10) - 3);
+    const bub2 = document.createElement('div');
+    bub2.className = 'nego-bubble left';
+    bub2.innerHTML = `<div class="bub-price">${driverCounter} ج</div><div class="bub-who">عرض السائق</div>`;
+    chat.appendChild(bub2);
+    chat.scrollTop = chat.scrollHeight;
+    showNotif('💬 السائق رد بسعر جديد: ' + driverCounter + ' ج');
+  }, 1200);
+}
+
+function pAcceptDriver(idx) {
+  const driver = state.driverOffers[idx];
+  state.agreedPrice = driver.price;
+  state.selectedDriver = driver;
+
+  document.getElementById('p-driver-avatar').textContent = driver.avatar;
+  document.getElementById('p-driver-name').textContent = driver.n;
+  document.getElementById('p-driver-rating').textContent = driver.r;
+  document.getElementById('p-driver-vehicle').textContent = driver.v;
+  document.getElementById('p-agreed-price').textContent = driver.price + ' ج';
+  document.getElementById('p-eta').textContent = driver.eta;
+  document.getElementById('p-plate').textContent = driver.plate;
+  document.getElementById('p-match-msg').textContent = `تم الاتفاق مع ${driver.n} بسعر ${driver.price} جنيه`;
+  document.getElementById('rate-driver-name').textContent = driver.n;
+
+  // Final summary
+  document.getElementById('final-route-p').textContent = state.from + ' ← ' + state.to;
+  document.getElementById('final-vehicle-p').textContent = vehicleNames[state.vehicle];
+  document.getElementById('final-price-p').textContent = driver.price + ' ج';
+
+  pGoStep(3);
+  showNotif('🎉 تم الاتفاق! السائق في الطريق');
+}
+
+// ── DRIVER FLOW ──
+function renderRequests(list) {
+  const container = document.getElementById('requests-list');
+  container.innerHTML = '';
+  if (!list.length) {
+    container.innerHTML = `<div class="empty-state"><span class="e-icon">📭</span><p>مفيش طلبات دلوقتي<br>جرب تعدل الفلتر</p></div>`;
+    return;
+  }
+  list.forEach(req => {
+    const div = document.createElement('div');
+    div.className = 'rider-card';
+    div.innerHTML = `
+      <div class="rider-avatar">${req.avatar}</div>
+      <div class="rider-info">
+        <div class="rider-name">${req.name}</div>
+        <div class="rider-meta">⭐ ${req.rating} · ${req.trips} رحلة</div>
+        <div class="rider-meta" style="margin-top:4px;">
+          <span>${req.from}</span>
+          <span style="margin:0 6px; color:var(--accent);">→</span>
+          <span>${req.to}</span>
+        </div>
+        <div style="display:flex; gap:4px; margin-top:6px; flex-wrap:wrap;">
+          <span class="tag tag-blue">${vehicleNames[req.vehicle] || req.vehicle}</span>
+          <span class="tag tag-amber">👤 ${req.passengers}</span>
+          <span class="tag tag-green">⏰ ${req.time}</span>
+        </div>
+      </div>
+      <div class="rider-price">
+        <div class="amount">${req.price}</div>
+        <div class="currency">ج</div>
+      </div>
+    `;
+    div.onclick = () => dSelectRequest(req);
+    container.appendChild(div);
+  });
+}
+
+function filterRequests() {
+  const vf = document.getElementById('d-filter-vehicle').value;
+  const pf = parseInt(document.getElementById('d-filter-price').value) || 0;
+  const filtered = mockRequests.filter(r =>
+    (!vf || r.vehicle === vf) && r.price >= pf
+  );
+  renderRequests(filtered);
+  showNotif('🔍 تم تطبيق الفلتر: ' + filtered.length + ' طلب');
+}
+
+function dSelectRequest(req) {
+  state.selectedRequest = req;
+  document.getElementById('d-req-from').textContent = req.from;
+  document.getElementById('d-req-to').textContent = req.to;
+  document.getElementById('d-req-vehicle').textContent = vehicleNames[req.vehicle] || req.vehicle;
+  document.getElementById('d-req-passengers').textContent = '👤 ' + req.passengers + ' راكب';
+  document.getElementById('d-req-time').textContent = '⏰ ' + req.time;
+  document.getElementById('d-passenger-price').textContent = req.price + ' ج';
+  document.getElementById('d-req-notes').textContent = req.notes ? '💬 ' + req.notes : '';
+
+  const suggestedPrice = req.price + 5;
+  document.getElementById('d-price-display').textContent = suggestedPrice;
+  document.getElementById('d-price-num').value = suggestedPrice;
+  document.getElementById('d-price-slider').value = suggestedPrice;
+
+  dGoStep(2);
+}
+
+function dSendOffer() {
+  const price = parseInt(document.getElementById('d-price-num').value) || 35;
+  const req = state.selectedRequest;
+  state.dOfferPrice = price;
+
+  const negoWrap = document.getElementById('d-nego-counter-wrap');
+  const negoChat = document.getElementById('d-nego-chat');
+  negoChat.style.display = 'block';
+  negoWrap.style.display = 'flex';
+
+  const bub = document.createElement('div');
+  bub.className = 'nego-bubble right';
+  bub.innerHTML = `<div class="bub-price">${price} ج</div><div class="bub-who">عرضك للراكب</div>`;
+  negoChat.appendChild(bub);
+
+  // Simulate passenger response
+  setTimeout(() => {
+    const diff = price - req.price;
+    if (diff <= 5) {
+      // Accept
+      setTimeout(() => dConfirmTrip(price, req), 800);
+    } else {
+      const counter = req.price + Math.floor(diff / 2);
+      const bub2 = document.createElement('div');
+      bub2.className = 'nego-bubble left';
+      bub2.innerHTML = `<div class="bub-price">${counter} ج</div><div class="bub-who">عرض الراكب المعاكس</div>`;
+      negoChat.appendChild(bub2);
+      negoChat.scrollTop = negoChat.scrollHeight;
+      showNotif('💬 الراكب رد بـ ' + counter + ' ج');
+    }
+  }, 1500);
+
+  showNotif('📤 تم إرسال عرضك!');
+}
+
+function dSendCounter() {
+  const val = document.getElementById('d-counter-input').value;
+  if (!val) { showNotif('⚠️ أدخل سعر'); return; }
+  const chat = document.getElementById('d-nego-chat');
+  const bub = document.createElement('div');
+  bub.className = 'nego-bubble right';
+  bub.innerHTML = `<div class="bub-price">${val} ج</div><div class="bub-who">عرضك المعدل</div>`;
+  chat.appendChild(bub);
+  chat.scrollTop = chat.scrollHeight;
+
+  const price = parseInt(val);
+  setTimeout(() => dConfirmTrip(price, state.selectedRequest), 1000);
+}
+
+function dConfirmTrip(price, req) {
+  state.agreedPrice = price;
+  document.getElementById('d-match-msg').textContent = `تم الاتفاق مع ${req.name} بسعر ${price} جنيه`;
+  document.getElementById('d-passenger-name').textContent = req.name;
+  document.getElementById('d-conf-from').textContent = req.from;
+  document.getElementById('d-conf-to').textContent = req.to;
+  document.getElementById('d-agreed-price').textContent = price + ' ج';
+
+  const commission = Math.round(price * 0.10);
+  const net = price - commission;
+  document.getElementById('final-route-d').textContent = req.from + ' ← ' + req.to;
+  document.getElementById('final-commission').textContent = commission + ' ج';
+  document.getElementById('final-net').textContent = net + ' ج';
+
+  dGoStep(3);
+  showNotif('🎉 قبل الراكب عرضك!');
+}
+
+// ── RATING ──
+function rateStar(val, who) {
+  state[who + 'Rating'] = val;
+  const row = document.getElementById('stars-row-' + who);
+  row.querySelectorAll('.star').forEach((s, i) => {
+    s.textContent = i < val ? '⭐' : '☆';
+  });
+}
+
+function submitRating(who) {
+  const val = state[who + 'Rating'];
+  if (!val) { showNotif('⚠️ اختر تقييم أول'); return; }
+  showNotif('⭐ شكراً على تقييمك!');
+  setTimeout(() => {
+    document.querySelectorAll('#stars-row-' + who + ' .star').forEach(s => s.textContent = '☆');
+  }, 1500);
+}
+
+// ── NOTIFICATION ──
+function showNotif(msg) {
+  const el = document.getElementById('notification');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2800);
+}
+</script>
+</body>
+</html>
